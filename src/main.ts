@@ -4,6 +4,7 @@ import http, { Server } from "http";
 import ApplicationRouter from "./routes/index.router";
 import { ResponseMethod } from "./types/public.types";
 import "./app.module"
+import "./modules/mongoDBConnection"
 const app: Application = express();
 const server : Server = http.createServer(app);
 const PORT = 5600
@@ -18,7 +19,14 @@ app.use((req : Request , res : Response , next : NextFunction) => {
     return res.status(404).json(response)
 })
 app.use(( error : any , req : Request , res : Response , next : NextFunction) =>{
-    const statusCode : number = +error?.status || 500
+    const statusCode:number = +error?.status || 500
+    const message:string = error?.message || "internalServerErorr"
+    const response : ResponseMethod = {
+        statusCode,
+        message,
+        errors : error?.errors || []
+    }
+    return res.status(statusCode).json(response) 
 })
 server.listen(PORT , () => {
     console.log(`Server Run over : http://localhost:${PORT}`);
